@@ -3,13 +3,14 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Segurança: apenas usuários internos (ADMIN tipo 1) gerenciam clientes
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 1) {
-    header("Location: index.php");
+    header("Location: " . BASE_URL . "/public/index.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
 
 $db = getDB();
 $enderecoDAO = new EnderecoDAO($db);
@@ -52,11 +53,11 @@ $lista = $clienteDAO->consultar($busca);
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Gestão de Clientes</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
 
     <div class="container">
         <h2>Cadastrar Cliente</h2>
@@ -88,7 +89,7 @@ $lista = $clienteDAO->consultar($busca);
             <input type="text" name="search" placeholder="Buscar por nome ou código..." value="<?= htmlspecialchars($busca) ?>">
             <button type="submit" class="btn">Consultar</button>
             <?php if($busca !== ""): ?>
-                <a href="clientes.php" class="btn-secondary" style="padding:10px; text-decoration:none;">Limpar</a>
+                <a href="<?= BASE_URL ?>/views/clientes/clientes.php" class="btn-secondary" style="padding:10px; text-decoration:none;">Limpar</a>
             <?php endif; ?>
         </form>
 
@@ -112,8 +113,8 @@ $lista = $clienteDAO->consultar($busca);
                     <td><?= htmlspecialchars($c['email']) ?></td>
                     <td><?= htmlspecialchars($c['telefone']) ?></td>
                     <td style="white-space: nowrap;">
-                        <a href="editar_cliente.php?id=<?= $c['cliente_id'] ?>" class="btn-edit">Editar</a>
-                        <a href="excluir_cliente.php?id=<?= $c['cliente_id'] ?>"
+                        <a href="<?= BASE_URL ?>/views/clientes/editar_cliente.php?id=<?= $c['cliente_id'] ?>" class="btn-edit">Editar</a>
+                        <a href="<?= BASE_URL ?>/views/clientes/excluir_cliente.php?id=<?= $c['cliente_id'] ?>"
                            class="btn-del"
                            onclick="return confirm('Deseja realmente remover este cliente?')">Remover</a>
                     </td>

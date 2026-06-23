@@ -1,8 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario_id'])) { header("Location: index.php"); exit; }
+require_once __DIR__ . "/../../config/bootstrap.php";
 
-require_once "config/bootstrap.php";
+if (!isset($_SESSION['usuario_id'])) { header("Location: " . BASE_URL . "/public/index.php"); exit; }
+
+
 $db = getDB();
 $produtoDAO = new ProdutoDAO($db);
 $estoqueDAO = new EstoqueDAO($db);
@@ -26,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $estoqueDAO->atualizarPorProduto($id, $_POST['qtd'], $_POST['preco']);
 
         $db->commit();
-        header("Location: produtos.php?msg=sucesso");
+        header("Location: " . BASE_URL . "/views/produtos/produtos.php?msg=sucesso");
     } catch (Exception $e) {
         $db->rollBack();
         $mensagem = "Erro: " . $e->getMessage();
@@ -38,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Manutenção de Estoque</title>
 </head>
 <body>
@@ -59,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <button type="submit" class="btn-edit" style="width:100%; padding:15px;">Salvar Alterações</button>
             <br><br>
-            <a href="produtos.php" style="display:block; text-align:center;">Voltar</a>
+            <a href="<?= BASE_URL ?>/views/produtos/produtos.php" style="display:block; text-align:center;">Voltar</a>
         </form>
     </div>
 </body>

@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__ . "/database.php";
+require_once __DIR__ . "/constants.php";
 
 // Autoload simples: procura a classe em models/ e depois em dao/
 spl_autoload_register(function ($classe) {

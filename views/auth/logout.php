@@ -3,6 +3,8 @@
 ob_start();
 session_start();
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Limpa todos os dados da sessão
 $_SESSION = array();
 
@@ -19,5 +21,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redireciona de forma absoluta
-header("Location: index.php");
+header("Location: " . BASE_URL . "/public/index.php");
 exit;

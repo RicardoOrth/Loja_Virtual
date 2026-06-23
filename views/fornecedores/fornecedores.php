@@ -1,8 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario_id'])) { header("Location: index.php"); exit; }
+require_once __DIR__ . "/../../config/bootstrap.php";
 
-require_once "config/bootstrap.php";
+if (!isset($_SESSION['usuario_id'])) { header("Location: " . BASE_URL . "/public/index.php"); exit; }
+
 
 $db = getDB();
 $enderecoDAO   = new EnderecoDAO($db);
@@ -43,11 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Gestão de Fornecedores</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
 
@@ -82,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" name="search" placeholder="Buscar por nome ou código..." value="<?= htmlspecialchars($busca) ?>">
             <button type="submit" class="btn">Consultar</button>
             <?php if($busca !== ""): ?>
-                <a href="fornecedores.php" class="btn-secondary" style="padding:10px; text-decoration:none;">Limpar</a>
+                <a href="<?= BASE_URL ?>/views/fornecedores/fornecedores.php" class="btn-secondary" style="padding:10px; text-decoration:none;">Limpar</a>
             <?php endif; ?>
         </form>
 
@@ -104,9 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                <td><?= htmlspecialchars($f['cidade']) ?></td>
                <td><?= htmlspecialchars($f['email']) ?></td>
                <td style="white-space: nowrap;">
-                  <a href="editar_fornecedor.php?id=<?= $f['fornecedor_id'] ?>" class="btn-edit">Editar</a>
+                  <a href="<?= BASE_URL ?>/views/fornecedores/editar_fornecedor.php?id=<?= $f['fornecedor_id'] ?>" class="btn-edit">Editar</a>
         
-                  <a href="excluir_fornecedor.php?id=<?= $f['fornecedor_id'] ?>" 
+                  <a href="<?= BASE_URL ?>/views/fornecedores/excluir_fornecedor.php?id=<?= $f['fornecedor_id'] ?>" 
                       class="btn-del" 
                       onclick="return confirm('Deseja realmente remover este fornecedor?')">
                    Remover

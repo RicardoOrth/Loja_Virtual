@@ -1,13 +1,14 @@
 <?php
 session_start();
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Segurança: apenas ADMIN (tipo 1)
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 1) {
-    header("Location: index.php");
+    header("Location: " . BASE_URL . "/public/index.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
 
 if (isset($_GET['id'])) {
     $db = getDB();
@@ -25,11 +26,11 @@ if (isset($_GET['id'])) {
             $usuarioDAO->excluir($v['usuario_id']);
             $enderecoDAO->excluir($v['endereco_id']);
             $db->commit();
-            header("Location: clientes.php?msg=sucesso");
+            header("Location: " . BASE_URL . "/views/clientes/clientes.php?msg=sucesso");
             exit;
         } else {
             $db->rollBack();
-            header("Location: clientes.php?msg=nao_encontrado");
+            header("Location: " . BASE_URL . "/views/clientes/clientes.php?msg=nao_encontrado");
             exit;
         }
     } catch (Exception $e) {
@@ -37,9 +38,9 @@ if (isset($_GET['id'])) {
         // Normalmente ocorre quando o cliente possui pedidos vinculados
         echo "<h3>Não foi possível excluir o cliente</h3>";
         echo "<p>Provavelmente este cliente possui <b>pedidos</b> cadastrados.</p>";
-        echo "<a href='clientes.php'>Voltar</a>";
+        echo "<a href='<?= BASE_URL ?>/views/clientes/clientes.php'>Voltar</a>";
     }
 } else {
-    header("Location: clientes.php");
+    header("Location: " . BASE_URL . "/views/clientes/clientes.php");
     exit;
 }

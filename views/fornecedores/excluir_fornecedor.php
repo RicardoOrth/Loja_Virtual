@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "config/bootstrap.php";
+require_once __DIR__ . "/../../config/bootstrap.php";
 
 if (isset($_GET['id'])) {
     $db = getDB();
@@ -26,9 +26,9 @@ if (isset($_GET['id'])) {
             $enderecoDAO->excluir($end_id);
 
             $db->commit();
-            header("Location: fornecedores.php?msg=sucesso");
+            header("Location: " . BASE_URL . "/views/fornecedores/fornecedores.php?msg=sucesso");
         } else {
-            header("Location: fornecedores.php?msg=nao_encontrado");
+            header("Location: " . BASE_URL . "/views/fornecedores/fornecedores.php?msg=nao_encontrado");
         }
 
     } catch (Exception $e) {
@@ -37,6 +37,6 @@ if (isset($_GET['id'])) {
         echo "<h3>Erro de Integridade</h3>";
         echo "Não é possível excluir este fornecedor pois ele possui <b>Produtos</b> cadastrados.";
         echo "<br>Remova os produtos deste fornecedor primeiro.";
-        echo "<br><br><a href='fornecedores.php'>Voltar</a>";
+        echo "<br><br><a href='<?= BASE_URL ?>/views/fornecedores/fornecedores.php'>Voltar</a>";
     }
 }

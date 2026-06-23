@@ -3,13 +3,14 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Segurança: Apenas ADMIN (Tipo 1) acessa esta página
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 1) {
-    header("Location: index.php");
+    header("Location: " . BASE_URL . "/public/index.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
 
 $usuarioDAO = new UsuarioDAO(getDB());
 $mensagem = "";
@@ -36,11 +37,11 @@ $listaUsuarios = $usuarioDAO->listar($busca);
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Gestão de Usuários</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
 
@@ -89,9 +90,9 @@ $listaUsuarios = $usuarioDAO->listar($busca);
                      ?>
                      </td>
                     <td style="white-space: nowrap;">
-                     <a href="editar_usuario.php?id=<?= $user['usuario_id'] ?>" class="btn-edit">Editar</a>
+                     <a href="<?= BASE_URL ?>/views/usuarios/editar_usuario.php?id=<?= $user['usuario_id'] ?>" class="btn-edit">Editar</a>
             
-                      <a href="excluir_usuario.php?id=<?= $user['usuario_id'] ?>" 
+                      <a href="<?= BASE_URL ?>/views/usuarios/excluir_usuario.php?id=<?= $user['usuario_id'] ?>" 
                        class="btn-del" 
                        onclick="return confirm('Deseja realmente excluir este usuário?')">
                       Excluir

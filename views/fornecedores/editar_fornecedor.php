@@ -1,8 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario_id'])) { header("Location: index.php"); exit; }
+require_once __DIR__ . "/../../config/bootstrap.php";
 
-require_once "config/bootstrap.php";
+if (!isset($_SESSION['usuario_id'])) { header("Location: " . BASE_URL . "/public/index.php"); exit; }
+
+
 $db = getDB();
 $usuarioDAO    = new UsuarioDAO($db);
 $enderecoDAO   = new EnderecoDAO($db);
@@ -48,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $fornecedorDAO->atualizar($fornecedor);
 
         $db->commit();
-        header("Location: fornecedores.php?msg=sucesso");
+        header("Location: " . BASE_URL . "/views/fornecedores/fornecedores.php?msg=sucesso");
         exit;
     } catch (Exception $e) {
         $db->rollBack();
@@ -61,11 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Editar Fornecedor</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
         

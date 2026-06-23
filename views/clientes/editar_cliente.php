@@ -3,13 +3,15 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Segurança: apenas ADMIN (tipo 1)
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 1) {
-    header("Location: index.php");
+    header("Location: " . BASE_URL . "/public/index.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
+
 $db = getDB();
 $usuarioDAO  = new UsuarioDAO($db);
 $enderecoDAO = new EnderecoDAO($db);
@@ -22,7 +24,7 @@ if (isset($_GET['id'])) {
     $dados = $clienteDAO->buscarCompletoPorId($id);
     if (!$dados) { die("Cliente não encontrado."); }
 } else {
-    header("Location: clientes.php");
+    header("Location: " . BASE_URL . "/views/clientes/clientes.php");
     exit;
 }
 
@@ -56,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ]));
 
         $db->commit();
-        header("Location: clientes.php?msg=sucesso");
+        header("Location: " . BASE_URL . "/views/clientes/clientes.php?msg=sucesso");
         exit;
     } catch (Exception $e) {
         if ($db->inTransaction()) $db->rollBack();
@@ -69,11 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Editar Cliente</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
 
     <div class="container">
         <h2>Editar Cliente: <?= htmlspecialchars($dados['nome']) ?></h2>
@@ -97,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <button type="submit" class="btn-edit" style="width:100%; padding:15px; cursor:pointer">Salvar Alterações</button>
             <br><br>
-            <a href="clientes.php" style="display:block; text-align:center;">Voltar</a>
+            <a href="<?= BASE_URL ?>/views/clientes/clientes.php" style="display:block; text-align:center;">Voltar</a>
         </form>
     </div>
 </body>
