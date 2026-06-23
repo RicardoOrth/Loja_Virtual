@@ -3,13 +3,15 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 // Segurança: Somente Admin pode editar usuários
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] != 1) {
-    header("Location: index.php");
+    header("Location: " . BASE_URL . "/public/index.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
+
 $usuarioDAO = new UsuarioDAO(getDB());
 $mensagem = "";
 
@@ -22,7 +24,7 @@ if (isset($_GET['id'])) {
         die("Usuário não encontrado.");
     }
 } else {
-    header("Location: usuarios.php");
+    header("Location: " . BASE_URL . "/views/usuarios/usuarios.php");
     exit;
 }
 
@@ -56,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_atualizar'])) {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Editar Usuário</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
 
@@ -84,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_atualizar'])) {
             </select>
             
             <button type="submit" name="bt_atualizar" class="btn">Salvar Alterações</button>
-            <a href="usuarios.php" style="margin-left:10px; color:#666;">Cancelar</a>
+            <a href="<?= BASE_URL ?>/views/usuarios/usuarios.php" style="margin-left:10px; color:#666;">Cancelar</a>
         </form>
     </div>
 </body>

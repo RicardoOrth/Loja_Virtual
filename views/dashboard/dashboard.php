@@ -3,12 +3,13 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+require_once __DIR__ . "/../../config/bootstrap.php";
+
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php");
+    header("Location: " . BASE_URL . "/views/auth/login.php");
     exit;
 }
 
-require_once "config/bootstrap.php";
 
 $usuario_email = $_SESSION['usuario_email'];
 $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDOR
@@ -19,7 +20,7 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
 <head>
     <meta charset="UTF-8">
     <title>Painel de Controle - TechStore</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <style>
         .dashboard-grid {
             display: grid;
@@ -58,7 +59,7 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
 </head>
 <body>
 
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
         <div class="welcome-banner">
@@ -75,22 +76,22 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
         <div class="dashboard-grid">
             
             <?php if($usuario_tipo == 1): ?>
-                <a href="usuarios.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/usuarios/usuarios.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-users-gear"></i></div>
                     <h3>Gestão de Usuários</h3>
                     <p>Cadastrar e gerenciar contas</p>
                 </a>
-                <a href="clientes.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/clientes/clientes.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-user-group"></i></div>
                     <h3>Gestão de Clientes</h3>
                     <p>Cadastrar e listar clientes</p>
                 </a>
-                <a href="fornecedores.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/fornecedores/fornecedores.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-truck-field"></i></div>
                     <h3>Gestão de Fornecedores</h3>
                     <p>Cadastrar e listar parceiros</p>
                 </a>
-                <a href="produtos.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/produtos/produtos.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
                     <h3>Gestão de Produtos</h3>
                     <p>Controle de estoque e preços</p>
@@ -111,7 +112,7 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
             <?php endif; ?>
 
             <?php if($usuario_tipo == 3): ?>
-                <a href="produtos.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/produtos/produtos.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
                     <h3>Meus Produtos</h3>
                     <p>Cadastrar e gerenciar seus itens</p>
@@ -123,7 +124,7 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
                 </a>
             <?php endif; ?>
 
-            <a href="index.php" class="card-menu">
+            <a href="<?= BASE_URL ?>/public/index.php" class="card-menu">
                 <div class="card-icon"><i class="fa-solid fa-store"></i></div>
                 <h3>Ir para a Loja</h3>
                 <p>Ver produtos disponíveis</p>

@@ -1,8 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario_id'])) { header("Location: index.php"); exit; }
+require_once __DIR__ . "/../../config/bootstrap.php";
 
-require_once "config/bootstrap.php";
+if (!isset($_SESSION['usuario_id'])) { header("Location: " . BASE_URL . "/public/index.php"); exit; }
+
 
 $db = getDB();
 $produtoDAO   = new ProdutoDAO($db);
@@ -20,7 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_cadastrar'])) {
         $estoqueDAO->inserir(new Estoque($produtoId, $_POST['qtd'], $_POST['preco']));
 
         $db->commit();
-        echo "<script>alert('Produto e estoque criados com sucesso!'); window.location.href='produtos.php';</script>";
+        echo "<script>
+            alert('Produto e estoque criados com sucesso!');
+            window.location.href='" . BASE_URL . "/views/produtos/produtos.php';
+        </script>";
     } catch (Exception $e) {
         $db->rollBack();
         die("ERRO AO CRIAR PRODUTO: " . $e->getMessage());
@@ -39,11 +43,11 @@ $lista = $produtoDAO->consultar($busca);
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <title>Gestão de Produtos</title>
 </head>
 <body>
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
 
@@ -95,8 +99,8 @@ $lista = $produtoDAO->consultar($busca);
                     <td><?= $p['quantidade'] ?></td>
                     <td>R$ <?= number_format($p['preco'], 2, ',', '.') ?></td>
                     <td style="white-space: nowrap;">
-                        <a href="editar_produto.php?id=<?= $p['produto_id'] ?>" class="btn-edit">Alterar</a>
-                        <a href="excluir_produto.php?id=<?= $p['produto_id'] ?>" class="btn-del" onclick="return confirm('Excluir este produto?')">Remover</a>
+                        <a href="<?= BASE_URL ?>/views/produtos/editar_produto.php?id=<?= $p['produto_id'] ?>" class="btn-edit">Alterar</a>
+                        <a href="<?= BASE_URL ?>/views/produtos/excluir_produto.php?id=<?= $p['produto_id'] ?>" class="btn-del" onclick="return confirm('Excluir este produto?')">Remover</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

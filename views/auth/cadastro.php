@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "config/bootstrap.php";
+require_once __DIR__ . "/../../config/bootstrap.php";
 
 $mensagem = "";
 $tipo_mensagem = "";

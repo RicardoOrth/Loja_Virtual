@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "config/bootstrap.php";
+require_once __DIR__ . "/../config/bootstrap.php";
 
 $db = getDB();
 $produtoDAO = new ProdutoDAO($db);
@@ -14,11 +14,11 @@ $listaProdutos = $produtoDAO->consultar("");
 <head>
     <meta charset="UTF-8">
     <title>Minha Loja Virtual</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 </head>
 <body>
 
-    <?php include "header.php"; ?>
+    <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
     <div class="container">
 

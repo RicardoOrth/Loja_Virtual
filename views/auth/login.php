@@ -3,11 +3,11 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once "config/bootstrap.php";
+require_once __DIR__ . "/../../config/bootstrap.php";
 
 // Se já estiver logado, manda para o dashboard
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: dashboard.php");
+    header("Location: " . BASE_URL . "/views/dashboard/dashboard.php");
     exit;
 }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['usuario_email'] = $user['email'];
         $_SESSION['usuario_tipo'] = $user['tipo']; 
 
-        header("Location: dashboard.php");
+        header("Location: " . BASE_URL . "/views/dashboard/dashboard.php");
         exit;
     } else {
         $erro = "E-mail ou senha incorretos.";
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login - TechStore</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
     <style>
         .login-container {
             height: 100vh;
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="error"><?= $erro ?></div>
         <?php endif; ?>
 
-        <form action="login.php" method="POST">
+        <form action="<?= BASE_URL ?>/views/auth/login.php" method="POST">
             <label>E-mail</label>
             <input type="email" name="email" required placeholder="exemplo@ucs.com">
             
@@ -104,9 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
         <p style="text-align: center; font-size: 14px;">Não tem uma conta?</p>
-       <a href="cadastro.php" class="btn-secondary" style="display: block; text-align: center; text-decoration: none; background: #f5f5f5; color: #333; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;">Cadastrar-se</a>
+       <a href="<?= BASE_URL ?>/views/auth/cadastro.php" class="btn-secondary" style="display: block; text-align: center; text-decoration: none; background: #f5f5f5; color: #333; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;">Cadastrar-se</a>
 
-       <a href="index.php" class="back-link">← Voltar para a Loja</a>
+       <a href="<?= BASE_URL ?>/public/index.php" class="back-link">← Voltar para a Loja</a>
     </div>
 
 </body>
