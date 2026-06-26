@@ -45,11 +45,12 @@ class ProdutoDAO {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /** Retorna produto + estoque por ID (usado na edição). */
+    /** Retorna produto + estoque + nome do fornecedor por ID (edição e carrinho). */
     public function buscarComEstoquePorId($produto_id) {
-        $sql = "SELECT p.*, e.quantidade, e.preco
+        $sql = "SELECT p.*, f.nome AS fornecedor_nome, e.quantidade, e.preco
                 FROM PRODUTO p
-                JOIN ESTOQUE e ON p.produto_id = e.produto_id
+                JOIN ESTOQUE    e ON p.produto_id    = e.produto_id
+                JOIN FORNECEDOR f ON p.fornecedor_id = f.fornecedor_id
                 WHERE p.produto_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$produto_id]);

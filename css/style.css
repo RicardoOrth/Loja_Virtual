@@ -101,6 +101,34 @@ nav a:hover {
     background-color: #2ecc71 !important;
 }
 
+/* --- Ícone do Carrinho no Header (US04) --- */
+.cart-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    font-size: 20px;
+    color: #ecf0f1;
+}
+
+.cart-link:hover {
+    color: #3498db;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: #e74c3c;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 3px 6px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+}
+
 /* --- Formulários --- */
 form input,
 form textarea,
@@ -227,4 +255,253 @@ hr {
     border: 0;
     border-top: 1px solid #ddd;
     margin: 40px 0;
+}
+
+/* ===================================================================
+   CARRINHO DE COMPRAS (US04) — layout inspirado no Mercado Livre
+   =================================================================== */
+.carrinho-titulo {
+    margin-bottom: 20px;
+}
+
+/* Duas colunas: lista de itens + resumo lateral */
+.carrinho-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.carrinho-itens {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.carrinho-resumo {
+    flex: 0 0 320px;
+    position: sticky;
+    top: 20px;
+}
+
+.carrinho-card {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Item do carrinho --- */
+.carrinho-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.carrinho-item:first-child {
+    padding-top: 0;
+}
+
+.carrinho-item:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.item-foto {
+    flex: 0 0 80px;
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 12px;
+    text-align: center;
+}
+
+.item-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-nome {
+    font-weight: 600;
+    color: #333;
+}
+
+.item-fornecedor {
+    font-size: 12px;
+    color: #2c8a4a;
+}
+
+.item-preco-unit {
+    font-size: 13px;
+    color: #888;
+}
+
+.item-remover {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: #3483fa;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 0;
+    margin-top: 4px;
+}
+
+.item-remover:hover {
+    text-decoration: underline;
+}
+
+/* --- Stepper de quantidade (− valor +) --- */
+.item-stepper {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.stepper-btn {
+    background: #fafafa;
+    border: none;
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    cursor: pointer;
+    color: #3483fa;
+}
+
+.stepper-btn:hover {
+    background: #f0f0f0;
+}
+
+.stepper-input {
+    width: 44px;
+    height: 34px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    font-size: 14px;
+    -moz-appearance: textfield;
+    margin: 0;
+    padding: 0;
+}
+
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.item-subtotal {
+    flex: 0 0 110px;
+    text-align: right;
+    font-weight: 700;
+    color: #333;
+}
+
+/* --- Resumo da compra --- */
+.carrinho-resumo h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+}
+
+.resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.resumo-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.btn-continuar {
+    width: 100%;
+}
+
+.btn-continuar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- Carrinho vazio --- */
+.carrinho-vazio {
+    text-align: center;
+    padding: 30px 0;
+    color: #888;
+}
+
+.carrinho-vazio i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 12px;
+}
+
+.carrinho-vazio p {
+    margin-bottom: 16px;
+}
+
+/* --- Mensagens e toast --- */
+.cart-msg {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.cart-msg-ok   { background: #e8f5e9; color: #2e7d32; }
+.cart-msg-erro { background: #ffebee; color: #c62828; }
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.toast-ok   { background: #43a047; }
+.toast-erro { background: #e53935; }
+
+/* --- Responsivo (foco em smartphone) --- */
+@media (max-width: 768px) {
+    .carrinho-layout {
+        flex-direction: column;
+    }
+    .carrinho-resumo {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
+    }
+    .carrinho-item {
+        flex-wrap: wrap;
+    }
+    .item-subtotal {
+        flex: 1 1 100%;
+        text-align: right;
+    }
 }
