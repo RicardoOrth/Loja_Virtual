@@ -13,16 +13,15 @@ $listaProdutos = $produtoDAO->consultar("");
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Loja Virtual</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css?v=<?= filemtime(ROOT_PATH . '/css/style.css') ?>">
 </head>
 <body>
 
     <?php include ROOT_PATH . "/views/layouts/header.php"; ?>
     
-    <div class="container">
-
-    <section class="container">
+    <main class="container loja-home">
         <h2>Confira nossos produtos</h2>
         <hr>
         
@@ -48,7 +47,7 @@ $listaProdutos = $produtoDAO->consultar("");
                 <p>Nenhum produto cadastrado no momento.</p>
             <?php endif; ?>
         </div>
-    </section>
+    </main>
 
     <!-- Aviso (toast) de feedback ao adicionar ao carrinho -->
     <div id="toast" class="toast" style="display:none;"></div>

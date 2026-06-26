@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - TechStore</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #263238; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }

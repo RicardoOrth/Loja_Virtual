@@ -19,8 +19,9 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Controle - TechStore</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css?v=<?= filemtime(ROOT_PATH . '/css/style.css') ?>">
     <style>
         .dashboard-grid {
             display: grid;
@@ -96,10 +97,15 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
                     <h3>Gestão de Produtos</h3>
                     <p>Controle de estoque e preços</p>
                 </a>
+                <a href="<?= BASE_URL ?>/views/pedidos/pedidos.php" class="card-menu">
+                    <div class="card-icon"><i class="fa-solid fa-receipt"></i></div>
+                    <h3>Pedidos</h3>
+                    <p>Consultar pedidos e itens</p>
+                </a>
             <?php endif; ?>
 
             <?php if($usuario_tipo == 2): ?>
-                <a href="meus_pedidos.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/pedidos/pedidos.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
                     <h3>Meus Pedidos</h3>
                     <p>Acompanhe suas compras</p>
@@ -117,7 +123,7 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
                     <h3>Meus Produtos</h3>
                     <p>Cadastrar e gerenciar seus itens</p>
                 </a>
-                <a href="vendas_recebidas.php" class="card-menu">
+                <a href="<?= BASE_URL ?>/views/pedidos/pedidos.php" class="card-menu">
                     <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
                     <h3>Vendas</h3>
                     <p>Pedidos recebidos dos clientes</p>
