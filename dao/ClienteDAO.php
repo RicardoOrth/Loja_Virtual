@@ -64,6 +64,15 @@ class ClienteDAO {
         ]);
     }
 
+    /** Retorna o cliente vinculado a um usuário (usado na finalização do pedido - US05). */
+    public function buscarPorUsuario($usuario_id) {
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM CLIENTE WHERE USUARIO_ID = ? LIMIT 1"
+        );
+        $stmt->execute([$usuario_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     /** Retorna os IDs de usuário e endereço vinculados ao cliente. */
     public function buscarVinculos($cliente_id) {
         $stmt = $this->conn->prepare(

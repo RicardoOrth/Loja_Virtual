@@ -357,3 +357,46 @@ class PedidoDAO{
         return (int) $stmt->fetchColumn();
     }
 }
+
+    /** Retorna o ID de uma situação pela descrição (ex.: 'NOVO'). */
+    public function buscarSituacaoId(string $descricao): ?int
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT PEDIDO_SITUACAO_ID FROM PEDIDO_SITUACAO WHERE DESCRICAO = ?"
+        );
+        $stmt->execute([$descricao]);
+        $id = $stmt->fetchColumn();
+        return $id === false ? null : (int) $id;
+    }
+
+    /** Próximo número de pedido (sequencial e único). */
+    public function proximoNumero(): int
+    {
+        $stmt = $this->conn->query(
+            "SELECT COALESCE(MAX(PEDIDO_NUMERO), 0) + 1 FROM PEDIDO"
+        );
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Insere o cabeçalho do pedido e retorna o PEDIDO_ID gerado.
+     * Deve ser chamado dentro de uma transação (US05).
+     */
+    public function inserirPedido(int $clienteId, int $numero, int $situacaoId): int
+    {
+        $sql = "INSERT INTO PEDIDO (CLIENTE_ID, PEDIDO_NUMERO, DATA_PEDIDO, SITUACAO_ID)
+                VALUES (?, ?, CURRENT_DATE, ?) RETURNING PEDIDO_ID";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$clienteId, $numero, $situacaoId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /** Insere um item do pedido. */
+    public function inserirItem(int $pedidoId, int $produtoId, int $quantidade, float $preco): bool
+    {
+        $sql = "INSERT INTO ITEM_PEDIDO (PEDIDO_ID, PRODUTO_ID, QUANTIDADE, PRECO)
+                VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$pedidoId, $produtoId, $quantidade, $preco]);
+    }
+}

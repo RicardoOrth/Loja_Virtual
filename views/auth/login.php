@@ -5,9 +5,16 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . "/../../config/bootstrap.php";
 
-// Se já estiver logado, manda para o dashboard
+// Destino após o login. Aceita ?redirect= (ex.: voltar para a finalização do
+// pedido - US05), mas só dentro da própria aplicação, para evitar open redirect.
+$redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+$destino  = (is_string($redirect) && strpos($redirect, BASE_URL . "/") === 0)
+    ? $redirect
+    : BASE_URL . "/views/dashboard/dashboard.php";
+
+// Se já estiver logado, vai direto para o destino.
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: " . BASE_URL . "/views/dashboard/dashboard.php");
+    header("Location: " . $destino);
     exit;
 }
 
@@ -27,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($user && password_verify($senha_digitada, $user['senha'])) {
         $_SESSION['usuario_id'] = $user['usuario_id'];
         $_SESSION['usuario_email'] = $user['email'];
-        $_SESSION['usuario_tipo'] = $user['tipo']; 
+        $_SESSION['usuario_tipo'] = $user['tipo'];
 
-        header("Location: " . BASE_URL . "/views/dashboard/dashboard.php");
+        header("Location: " . $destino);
         exit;
     } else {
         $erro = "E-mail ou senha incorretos.";
@@ -94,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
 
         <form action="<?= BASE_URL ?>/views/auth/login.php" method="POST">
+            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
             <label>E-mail</label>
             <input type="email" name="email" required placeholder="exemplo@ucs.com">
             

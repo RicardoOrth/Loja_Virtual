@@ -20,6 +20,18 @@ class EstoqueDAO {
         return $stmt->execute([$quantidade, $preco, $produto_id]);
     }
 
+    /**
+     * Baixa a quantidade em estoque de um produto.
+     * Só efetua se houver saldo suficiente; retorna true se a baixa ocorreu.
+     */
+    public function baixarEstoque($produto_id, $quantidade) {
+        $sql = "UPDATE ESTOQUE SET QUANTIDADE = QUANTIDADE - ?
+                WHERE PRODUTO_ID = ? AND QUANTIDADE >= ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$quantidade, $produto_id, $quantidade]);
+        return $stmt->rowCount() > 0;
+    }
+
     public function excluirPorProduto($produto_id) {
         $stmt = $this->conn->prepare("DELETE FROM ESTOQUE WHERE PRODUTO_ID = ?");
         return $stmt->execute([$produto_id]);

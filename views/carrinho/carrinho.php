@@ -13,6 +13,25 @@
 
 session_start();
 require_once __DIR__ . "/../../config/bootstrap.php";
+
+// Aviso de status vindo da finalização do pedido (US05).
+$bannerTexto = "";
+$bannerClasse = "";
+switch ($_GET['status'] ?? '') {
+    case 'sucesso':
+        $num = htmlspecialchars($_GET['pedido'] ?? '');
+        $bannerTexto  = "Pedido nº $num criado com sucesso! O estoque foi atualizado.";
+        $bannerClasse = "cart-msg-ok";
+        break;
+    case 'erro':
+        $bannerTexto  = "Não foi possível concluir: " . htmlspecialchars($_GET['msg'] ?? 'erro desconhecido.');
+        $bannerClasse = "cart-msg-erro";
+        break;
+    case 'vazio':
+        $bannerTexto  = "Seu carrinho está vazio.";
+        $bannerClasse = "cart-msg-erro";
+        break;
+}
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +48,11 @@ require_once __DIR__ . "/../../config/bootstrap.php";
 
     <div class="container">
         <h2 class="carrinho-titulo">Carrinho</h2>
+
+        <!-- Aviso da finalização do pedido (US05) -->
+        <?php if ($bannerTexto): ?>
+            <div class="cart-msg <?= $bannerClasse ?>"><?= $bannerTexto ?></div>
+        <?php endif; ?>
 
         <!-- Mensagem de feedback (erros de estoque, etc.) -->
         <div id="cart-msg" class="cart-msg" style="display:none;"></div>
@@ -59,8 +83,8 @@ require_once __DIR__ . "/../../config/bootstrap.php";
                         <span>Total</span>
                         <span id="cart-total">R$ 0,00</span>
                     </div>
-                    <button class="btn btn-continuar" id="btn-continuar" onclick="continuarCompra()">
-                        Continuar a compra
+                    <button class="btn btn-continuar" id="btn-continuar" onclick="encerrarPedido()">
+                        Encerrar pedido
                     </button>
                 </div>
             </aside>
@@ -160,9 +184,10 @@ require_once __DIR__ . "/../../config/bootstrap.php";
             enviarAcao({ acao: "remover", produto_id: produtoId });
         }
 
-        function continuarCompra() {
-            // A finalização do pedido será implementada na US05.
-            mostrarMensagem("Finalização do pedido será implementada na US05.", true);
+        function encerrarPedido() {
+            // O servidor checa login: se não estiver logado, manda para o login
+            // e volta para cá; se estiver, grava o pedido e dá baixa no estoque.
+            window.location.href = "<?= BASE_URL ?>/views/carrinho/finalizar.php";
         }
 
         // Carrega o estado inicial do carrinho ao abrir a página.
