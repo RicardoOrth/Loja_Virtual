@@ -356,7 +356,6 @@ class PedidoDAO{
 
         return (int) $stmt->fetchColumn();
     }
-}
 
     /** Retorna o ID de uma situação pela descrição (ex.: 'NOVO'). */
     public function buscarSituacaoId(string $descricao): ?int

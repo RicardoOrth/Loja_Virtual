@@ -85,7 +85,7 @@ try {
     Carrinho::limpar();
     voltarCarrinho('sucesso', ['pedido' => $numero]);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     if ($db->inTransaction()) {
         $db->rollBack();
     }
