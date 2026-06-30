@@ -10,13 +10,28 @@ if (!isset($_SESSION['usuario_id'])) {
 $db = getDB();
 $produtoDAO = new ProdutoDAO($db);
 $estoqueDAO = new EstoqueDAO($db);
+$fornecedorDAO = new FornecedorDAO($db);
 $mensagem = "";
+$usuarioTipo = (int) ($_SESSION['usuario_tipo'] ?? 0);
+$fornecedorLogado = null;
+
+if ($usuarioTipo === 3) {
+    $fornecedorLogado = $fornecedorDAO->buscarPorUsuarioId($_SESSION['usuario_id']);
+
+    if (!$fornecedorLogado) {
+        die("Fornecedor nao encontrado para o usuario logado.");
+    }
+}
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     // Busca produto e estoque juntos (via DAO)
     $prod = $produtoDAO->buscarComEstoquePorId($id);
     if (!$prod) die("Produto não encontrado.");
+
+    if ($fornecedorLogado && (int) $prod['fornecedor_id'] !== (int) $fornecedorLogado['fornecedor_id']) {
+        die("Voce nao tem permissao para alterar este produto.");
+    }
 } else {
     header("Location: " . BASE_URL . "/views/produtos/produtos.php");
     exit;

@@ -12,6 +12,16 @@ $produtoDAO   = new ProdutoDAO($db);
 $estoqueDAO   = new EstoqueDAO($db);
 $fornecedorDAO = new FornecedorDAO($db);
 $mensagem = "";
+$usuarioTipo = (int) ($_SESSION['usuario_tipo'] ?? 0);
+$fornecedorLogado = null;
+
+if ($usuarioTipo === 3) {
+    $fornecedorLogado = $fornecedorDAO->buscarPorUsuarioId($_SESSION['usuario_id']);
+
+    if (!$fornecedorLogado) {
+        die("Fornecedor nao encontrado para o usuario logado.");
+    }
+}
 
 // Processar Cadastro (produto + estoque + imagens numa única transação coordenada pelo DAO)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_cadastrar'])) {
@@ -61,7 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_cadastrar'])) {
         }
 
         // 2. Inserir Produto passando a LISTA de imagens para o DAO
-        $produto = new Produto($_POST['nome'], $_POST['descricao'], $_POST['fornecedor_id']);
+        $fornecedorId = $fornecedorLogado
+            ? (int) $fornecedorLogado['fornecedor_id']
+            : (int) $_POST['fornecedor_id'];
+
+        $produto = new Produto($_POST['nome'], $_POST['descricao'], $fornecedorId);
         $produtoId = $produtoDAO->inserir($produto, $listaImagens);
 
         // 3. Inserir Estoque correspondente
@@ -81,7 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bt_cadastrar'])) {
 }
 
 // Busca fornecedores para o Select (Combo Box)
-$fornecedores = $fornecedorDAO->listarParaSelect();
+$fornecedores = $fornecedorLogado
+    ? [$fornecedorLogado]
+    : $fornecedorDAO->listarParaSelect();
 
 // Lógica de Consulta com Paginação (8 itens por página - US02)
 $busca = trim($_GET['search'] ?? "");
@@ -90,7 +106,10 @@ $paginaAtual = (isset($_GET['pagina']) && ctype_digit($_GET['pagina'])) ? (int) 
 if ($paginaAtual < 1) { $paginaAtual = 1; }
 
 // Obtém totais e calcula as páginas necessárias
-$totalRegistros = $produtoDAO->contarTotal($busca);
+$totalRegistros = $produtoDAO->contarTotal(
+    $busca,
+    $fornecedorLogado ? (int) $fornecedorLogado['fornecedor_id'] : null
+);
 $totalPaginas = $totalRegistros > 0 ? (int) ceil($totalRegistros / $limite) : 1;
 
 if ($paginaAtual > $totalPaginas) {
@@ -98,7 +117,12 @@ if ($paginaAtual > $totalPaginas) {
 }
 
 // Busca apenas os 8 produtos da página ativa
-$lista = $produtoDAO->consultarPaginado($busca, $paginaAtual, $limite);
+$lista = $produtoDAO->consultarPaginado(
+    $busca,
+    $paginaAtual,
+    $limite,
+    $fornecedorLogado ? (int) $fornecedorLogado['fornecedor_id'] : null
+);
 
 /** Função auxiliar para construir os links mantendo o termo buscado */
 function urlPaginacao(int $numPagina, string $busca): string {
@@ -246,12 +270,17 @@ function urlPaginacao(int $numPagina, string $busca): string {
                 <textarea name="descricao" placeholder="Descrição"></textarea>
 
                 <label>Fornecedor:</label>
-                <select name="fornecedor_id" required>
-                    <option value="">Selecione um fornecedor</option>
+                <select name="fornecedor_id" required <?= $fornecedorLogado ? 'disabled' : '' ?>>
+                    <?php if (!$fornecedorLogado): ?>
+                        <option value="">Selecione um fornecedor</option>
+                    <?php endif; ?>
                     <?php foreach ($fornecedores as $f): ?>
                         <option value="<?= $f['fornecedor_id'] ?>"><?= htmlspecialchars($f['nome']) ?></option>
                     <?php endforeach; ?>
                 </select>
+                <?php if ($fornecedorLogado): ?>
+                    <input type="hidden" name="fornecedor_id" value="<?= (int) $fornecedorLogado['fornecedor_id'] ?>">
+                <?php endif; ?>
 
                 <input type="number" name="qtd" placeholder="Quantidade inicial" required>
                 <input type="number" step="0.01" name="preco" placeholder="Preço (ex: 99.90)" required>

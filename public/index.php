@@ -53,21 +53,38 @@ function urlPaginacao(int $numPagina, string $busca): string
         <h2>Confira nossos produtos</h2>
         <hr>
 
+        <form method="GET" class="lista-busca" style="margin-bottom: 25px;">
+            <div class="busca-campo">
+                <i class="fa-solid fa-magnifying-glass busca-icone"></i>
+                <input type="text" name="search" placeholder="Buscar por nome ou descrição do produto..." value="<?= htmlspecialchars($busca) ?>">
+            </div>
+            <button type="submit" class="btn">Buscar</button>
+            <?php if ($busca !== ""): ?>
+                <a href="?" class="btn btn-secundario" style="text-decoration:none; display: inline-flex; align-items: center;">Limpar</a>
+            <?php endif; ?>
+        </form>
+
         <div class="vitrine">
             <?php foreach ($listaProdutos as $p): ?>
                 <div class="produto-card">
-                    <div style="background:#f9f9f9; height:150px; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; border: 1px solid #eee;">
-                        <?php if (!empty($p['imagem_caminho'])): ?>
-                            <img src="<?= BASE_URL . $p['imagem_caminho'] ?>" alt="<?= htmlspecialchars($p['nome']) ?>" style="width:100%; height:100%; object-fit:cover;">
-                        <?php else: ?>
-                            <div style="color:#ccc; display:flex; flex-direction:column; align-items:center; gap:8px;">
-                                <i class="fa-solid fa-image" style="font-size:32px;"></i>
-                                <span style="font-size:12px;">Sem imagem</span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                    
+                    <a href="<?= BASE_URL ?>/views/produtos/detalhes_produto.php?id=<?= $p['produto_id'] ?>" style="text-decoration: none; display: block;">
+                        <div style="background:#f9f9f9; height:150px; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; border: 1px solid #eee;">
+                            <?php if (!empty($p['imagem_caminho'])): ?>
+                                <img src="<?= BASE_URL . $p['imagem_caminho'] ?>" alt="<?= htmlspecialchars($p['nome']) ?>" style="width:100%; height:100%; object-fit:cover;">
+                            <?php else: ?>
+                                <div style="color:#ccc; display:flex; flex-direction:column; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-image" style="font-size:32px;"></i>
+                                    <span style="font-size:12px;">Sem imagem</span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
 
-                    <h3><?= htmlspecialchars($p['nome']) ?></h3>
+                    <a href="<?= BASE_URL ?>/views/produtos/detalhes_produto.php?id=<?= $p['produto_id'] ?>" style="text-decoration: none; color: inherit;">
+                        <h3><?= htmlspecialchars($p['nome']) ?></h3>
+                    </a>
+                    
                     <p class="fornecedor-tag">Fornecedor: <?= htmlspecialchars($p['fornecedor_nome']) ?></p>
                     <p class="preco">R$ <?= number_format($p['preco'], 2, ',', '.') ?></p>
 
@@ -81,7 +98,7 @@ function urlPaginacao(int $numPagina, string $busca): string
             <?php endforeach; ?>
 
             <?php if (count($listaProdutos) == 0): ?>
-                <p>Nenhum produto cadastrado no momento.</p>
+                <p style="grid-column: 1/-1; text-align: center; color: #666; margin: 20px 0;">Nenhum produto encontrado para a sua busca.</p>
             <?php endif; ?>
         </div>
 
@@ -123,6 +140,7 @@ function urlPaginacao(int $numPagina, string $busca): string
     <script>
         const AJAX_URL = "<?= BASE_URL ?>/views/carrinho/carrinho_ajax.php";
 
+        // Mantive as funções JavaScript idênticas com os ajustes de correção feitos antes
         function mostrarToast(texto, sucesso) {
             const toast = document.getElementById("toast");
             toast.textContent = texto;
@@ -138,7 +156,7 @@ function urlPaginacao(int $numPagina, string $busca): string
         function atualizarBadgeHeader(quantidade) {
             const badge = document.getElementById("cart-badge");
             if (!badge) return;
-            badge.textContent = quantidade; // Corrigido!
+            badge.textContent = quantidade;
             badge.style.display = quantidade > 0 ? "" : "none";
         }
 

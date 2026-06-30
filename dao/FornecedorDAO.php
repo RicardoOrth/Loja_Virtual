@@ -63,6 +63,14 @@ class FornecedorDAO {
         return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function buscarPorUsuarioId($usuario_id) {
+        $stmt = $this->conn->prepare(
+            "SELECT fornecedor_id, nome FROM FORNECEDOR WHERE usuario_id = ?"
+        );
+        $stmt->execute([$usuario_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     /** Retorna fornecedor + endereço + usuário (usado na edição). */
     public function buscarCompletoPorId($fornecedor_id) {
         $sql = "SELECT f.*, e.*, u.email, u.senha

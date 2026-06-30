@@ -110,11 +110,6 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
                     <h3>Meus Pedidos</h3>
                     <p>Acompanhe suas compras</p>
                 </a>
-                <a href="perfil.php" class="card-menu">
-                    <div class="card-icon"><i class="fa-solid fa-id-card"></i></div>
-                    <h3>Meu Perfil</h3>
-                    <p>Editar endereço e dados</p>
-                </a>
             <?php endif; ?>
 
             <?php if($usuario_tipo == 3): ?>
@@ -122,11 +117,6 @@ $usuario_tipo = $_SESSION['usuario_tipo']; // 1. ADMIN, 2. CLIENTE, 3. FORNECEDO
                     <div class="card-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
                     <h3>Meus Produtos</h3>
                     <p>Cadastrar e gerenciar seus itens</p>
-                </a>
-                <a href="<?= BASE_URL ?>/views/pedidos/pedidos.php" class="card-menu">
-                    <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <h3>Vendas</h3>
-                    <p>Pedidos recebidos dos clientes</p>
                 </a>
             <?php endif; ?>
 

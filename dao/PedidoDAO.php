@@ -13,9 +13,13 @@ class PedidoDAO{
         ?string $cliente = null,
         int $pagina = 1,
         int $limite = 10,
-        ?int $usuarioClienteId = null
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
     ): array {
         $offset = ($pagina - 1) * $limite;
+        $valorTotalSql = $fornecedorId !== null
+            ? "COALESCE(SUM(CASE WHEN fp.FORNECEDOR_ID = :fornecedor_total_id THEN ip.QUANTIDADE * ip.PRECO ELSE 0 END), 0)"
+            : "COALESCE(SUM(ip.QUANTIDADE * ip.PRECO), 0)";
 
         $sql = "
             SELECT
@@ -26,7 +30,7 @@ class PedidoDAO{
                 p.DATA_CANCELAMENTO,
                 c.NOME AS CLIENTE_NOME,
                 ps.DESCRICAO AS SITUACAO,
-                COALESCE(SUM(ip.QUANTIDADE * ip.PRECO), 0) AS VALOR_TOTAL
+                {$valorTotalSql} AS VALOR_TOTAL
             FROM PEDIDO p
             JOIN CLIENTE c
                 ON c.CLIENTE_ID = p.CLIENTE_ID
@@ -34,10 +38,16 @@ class PedidoDAO{
                 ON ps.PEDIDO_SITUACAO_ID = p.SITUACAO_ID
             LEFT JOIN ITEM_PEDIDO ip
                 ON ip.PEDIDO_ID = p.PEDIDO_ID
+            LEFT JOIN PRODUTO fp
+                ON fp.PRODUTO_ID = ip.PRODUTO_ID
             WHERE 1 = 1
         ";
 
         $params = [];
+
+        if ($fornecedorId !== null) {
+            $params[':fornecedor_total_id'] = $fornecedorId;
+        }
 
         if ($id !== null) {
             $sql .= " AND p.PEDIDO_ID = :id";
@@ -57,6 +67,17 @@ class PedidoDAO{
         if ($usuarioClienteId !== null) {
             $sql .= " AND c.USUARIO_ID = :usuario_cliente_id";
             $params[':usuario_cliente_id'] = $usuarioClienteId;
+        }
+
+        if ($fornecedorId !== null) {
+            $sql .= " AND EXISTS (
+                SELECT 1
+                FROM ITEM_PEDIDO ipf
+                JOIN PRODUTO pf ON pf.PRODUTO_ID = ipf.PRODUTO_ID
+                WHERE ipf.PEDIDO_ID = p.PEDIDO_ID
+                  AND pf.FORNECEDOR_ID = :fornecedor_id
+            )";
+            $params[':fornecedor_id'] = $fornecedorId;
         }
 
         $sql .= "
@@ -115,8 +136,16 @@ class PedidoDAO{
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function consultarPedidoDetalhado(int $pedidoId, ?int $usuarioClienteId = null): ?array
+    public function consultarPedidoDetalhado(
+        int $pedidoId,
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
+    ): ?array
     {
+        $valorTotalSql = $fornecedorId !== null
+            ? "COALESCE(SUM(CASE WHEN fp.FORNECEDOR_ID = :fornecedor_total_id THEN ip.QUANTIDADE * ip.PRECO ELSE 0 END), 0)"
+            : "COALESCE(SUM(ip.QUANTIDADE * ip.PRECO), 0)";
+
         $sql = "
             SELECT
                 p.PEDIDO_ID,
@@ -127,7 +156,7 @@ class PedidoDAO{
                 c.CLIENTE_ID,
                 c.NOME AS CLIENTE_NOME,
                 ps.DESCRICAO AS SITUACAO,
-                COALESCE(SUM(ip.QUANTIDADE * ip.PRECO), 0) AS VALOR_TOTAL
+                {$valorTotalSql} AS VALOR_TOTAL
             FROM PEDIDO p
             JOIN CLIENTE c
                 ON c.CLIENTE_ID = p.CLIENTE_ID
@@ -135,6 +164,8 @@ class PedidoDAO{
                 ON ps.PEDIDO_SITUACAO_ID = p.SITUACAO_ID
             LEFT JOIN ITEM_PEDIDO ip
                 ON ip.PEDIDO_ID = p.PEDIDO_ID
+            LEFT JOIN PRODUTO fp
+                ON fp.PRODUTO_ID = ip.PRODUTO_ID
             WHERE p.PEDIDO_ID = :pedido_id
         ";
 
@@ -142,9 +173,24 @@ class PedidoDAO{
             ':pedido_id' => $pedidoId
         ];
 
+        if ($fornecedorId !== null) {
+            $params[':fornecedor_total_id'] = $fornecedorId;
+        }
+
         if ($usuarioClienteId !== null) {
             $sql .= " AND c.USUARIO_ID = :usuario_cliente_id";
             $params[':usuario_cliente_id'] = $usuarioClienteId;
+        }
+
+        if ($fornecedorId !== null) {
+            $sql .= " AND EXISTS (
+                SELECT 1
+                FROM ITEM_PEDIDO ipf
+                JOIN PRODUTO pf ON pf.PRODUTO_ID = ipf.PRODUTO_ID
+                WHERE ipf.PEDIDO_ID = p.PEDIDO_ID
+                  AND pf.FORNECEDOR_ID = :fornecedor_id
+            )";
+            $params[':fornecedor_id'] = $fornecedorId;
         }
 
         $sql .= "
@@ -201,7 +247,8 @@ class PedidoDAO{
         int $pedidoId,
         int $pagina = 1,
         int $limite = 5,
-        ?int $usuarioClienteId = null
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
     ): array {
         $offset = ($pagina - 1) * $limite;
 
@@ -238,6 +285,11 @@ class PedidoDAO{
             $params[':usuario_cliente_id'] = $usuarioClienteId;
         }
 
+        if ($fornecedorId !== null) {
+            $sql .= " AND p.FORNECEDOR_ID = :fornecedor_id";
+            $params[':fornecedor_id'] = $fornecedorId;
+        }
+
         // Importante: No PostgreSQL, colunas do DISTINCT ON precisam vir primeiro no ORDER BY
         $sql .= "
             ORDER BY ip.ITEM_PEDIDO_ID, pi.PRODUTO_IMAGEM_ID ASC
@@ -258,11 +310,17 @@ class PedidoDAO{
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function contarItensPedido(int $pedidoId, ?int $usuarioClienteId = null): int
+    public function contarItensPedido(
+        int $pedidoId,
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
+    ): int
     {
         $sql = "
             SELECT COUNT(ip.ITEM_PEDIDO_ID)
             FROM ITEM_PEDIDO ip
+            JOIN PRODUTO pr
+                ON pr.PRODUTO_ID = ip.PRODUTO_ID
             JOIN PEDIDO p
                 ON p.PEDIDO_ID = ip.PEDIDO_ID
             JOIN CLIENTE c
@@ -279,6 +337,11 @@ class PedidoDAO{
             $params[':usuario_cliente_id'] = $usuarioClienteId;
         }
 
+        if ($fornecedorId !== null) {
+            $sql .= " AND pr.FORNECEDOR_ID = :fornecedor_id";
+            $params[':fornecedor_id'] = $fornecedorId;
+        }
+
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
 
@@ -286,7 +349,11 @@ class PedidoDAO{
     }
 
     /** ADJUSTED: Retorna apenas 1 foto por produto no histórico de detalhes do pedido */
-    public function consultarFotosPedido(int $pedidoId, ?int $usuarioClienteId = null): array
+    public function consultarFotosPedido(
+        int $pedidoId,
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
+    ): array
     {
         $sql = "
             SELECT DISTINCT ON (p.PRODUTO_ID)
@@ -314,6 +381,11 @@ class PedidoDAO{
             $params[':usuario_cliente_id'] = $usuarioClienteId;
         }
 
+        if ($fornecedorId !== null) {
+            $sql .= " AND p.FORNECEDOR_ID = :fornecedor_id";
+            $params[':fornecedor_id'] = $fornecedorId;
+        }
+
         $sql .= " ORDER BY p.PRODUTO_ID, pi.PRODUTO_IMAGEM_ID ASC";
 
         $stmt = $this->conn->prepare($sql);
@@ -326,7 +398,8 @@ class PedidoDAO{
         ?int $id = null,
         ?int $numero = null,
         ?string $cliente = null,
-        ?int $usuarioClienteId = null
+        ?int $usuarioClienteId = null,
+        ?int $fornecedorId = null
     ): int {
         $sql = "
             SELECT
@@ -357,6 +430,17 @@ class PedidoDAO{
         if ($usuarioClienteId !== null) {
             $sql .= " AND c.USUARIO_ID = :usuario_cliente_id";
             $params[':usuario_cliente_id'] = $usuarioClienteId;
+        }
+
+        if ($fornecedorId !== null) {
+            $sql .= " AND EXISTS (
+                SELECT 1
+                FROM ITEM_PEDIDO ipf
+                JOIN PRODUTO pf ON pf.PRODUTO_ID = ipf.PRODUTO_ID
+                WHERE ipf.PEDIDO_ID = p.PEDIDO_ID
+                  AND pf.FORNECEDOR_ID = :fornecedor_id
+            )";
+            $params[':fornecedor_id'] = $fornecedorId;
         }
 
         $stmt = $this->conn->prepare($sql);

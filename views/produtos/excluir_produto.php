@@ -6,9 +6,22 @@ if (isset($_GET['id'])) {
     $db = getDB();
     $produtoDAO = new ProdutoDAO($db);
     $estoqueDAO = new EstoqueDAO($db);
+    $fornecedorDAO = new FornecedorDAO($db);
     
     try {
         $idProduto = $_GET['id'];
+
+        if (isset($_SESSION['usuario_tipo']) && (int) $_SESSION['usuario_tipo'] === 3) {
+            $fornecedorLogado = $fornecedorDAO->buscarPorUsuarioId($_SESSION['usuario_id']);
+
+            if (
+                !$fornecedorLogado ||
+                !$produtoDAO->pertenceAoFornecedor($idProduto, $fornecedorLogado['fornecedor_id'])
+            ) {
+                header("Location: " . BASE_URL . "/views/produtos/produtos.php");
+                exit;
+            }
+        }
 
         // 1. BUSCA TODAS AS IMAGENS DO PRODUTO ANTES DE DELETAR (Para não perder os caminhos)
         // Usamos o método que já criamos no seu ProdutoDAO

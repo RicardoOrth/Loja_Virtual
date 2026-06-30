@@ -42,10 +42,27 @@ $pagina = (int) $pagina;
 $limite = min((int) $limite, 20);
 $usuarioTipo = (int) ($_SESSION['usuario_tipo'] ?? 0);
 $usuarioClienteId = $usuarioTipo === 2 ? (int) $_SESSION['usuario_id'] : null;
+$fornecedorLogadoId = null;
 
 try {
-    $pedidoDAO = new PedidoDAO(getDB());
-    $pedido = $pedidoDAO->consultarPedidoDetalhado($pedidoId, $usuarioClienteId);
+    $db = getDB();
+    $pedidoDAO = new PedidoDAO($db);
+
+    if ($usuarioTipo === 3) {
+        $fornecedorDAO = new FornecedorDAO($db);
+        $fornecedorLogado = $fornecedorDAO->buscarPorUsuarioId($_SESSION['usuario_id']);
+
+        if (!$fornecedorLogado) {
+            responder([
+                'ok' => false,
+                'mensagem' => 'Fornecedor nao encontrado para o usuario logado.'
+            ], 403);
+        }
+
+        $fornecedorLogadoId = (int) $fornecedorLogado['fornecedor_id'];
+    }
+
+    $pedido = $pedidoDAO->consultarPedidoDetalhado($pedidoId, $usuarioClienteId, $fornecedorLogadoId);
 
     if (!$pedido) {
         responder([
@@ -54,15 +71,15 @@ try {
         ], 404);
     }
 
-    $total = $pedidoDAO->contarItensPedido($pedidoId, $usuarioClienteId);
+    $total = $pedidoDAO->contarItensPedido($pedidoId, $usuarioClienteId, $fornecedorLogadoId);
     $totalPaginas = $total > 0 ? (int) ceil($total / $limite) : 1;
 
     if ($pagina > $totalPaginas) {
         $pagina = $totalPaginas;
     }
 
-    $itens = $pedidoDAO->consultarItensPedidoPaginado($pedidoId, $pagina, $limite, $usuarioClienteId);
-    $fotos = $pedidoDAO->consultarFotosPedido($pedidoId, $usuarioClienteId);
+    $itens = $pedidoDAO->consultarItensPedidoPaginado($pedidoId, $pagina, $limite, $usuarioClienteId, $fornecedorLogadoId);
+    $fotos = $pedidoDAO->consultarFotosPedido($pedidoId, $usuarioClienteId, $fornecedorLogadoId);
 
     // Ajusta os dados dos itens e formata o caminho da imagem
     foreach ($itens as &$item) {
