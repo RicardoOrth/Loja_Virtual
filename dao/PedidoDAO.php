@@ -449,6 +449,20 @@ class PedidoDAO{
         return (int) $stmt->fetchColumn();
     }
 
+    /** Retorna a descrição da situação atual de um pedido (ex.: 'NOVO'). */
+    public function situacaoAtual(int $pedidoId): ?string
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT ps.DESCRICAO
+             FROM PEDIDO p
+             JOIN PEDIDO_SITUACAO ps ON ps.PEDIDO_SITUACAO_ID = p.SITUACAO_ID
+             WHERE p.PEDIDO_ID = ?"
+        );
+        $stmt->execute([$pedidoId]);
+        $descricao = $stmt->fetchColumn();
+        return $descricao === false ? null : $descricao;
+    }
+
     public function buscarSituacaoId(string $descricao): ?int
     {
         $stmt = $this->conn->prepare(

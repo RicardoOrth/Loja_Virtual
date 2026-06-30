@@ -32,6 +32,16 @@ class EstoqueDAO {
         return $stmt->rowCount() > 0;
     }
 
+    /**
+     * Repõe (devolve) quantidade ao estoque de um produto.
+     * Usado ao cancelar um pedido (US06), para os itens voltarem ao estoque.
+     */
+    public function reporEstoque($produto_id, $quantidade) {
+        $sql = "UPDATE ESTOQUE SET QUANTIDADE = QUANTIDADE + ? WHERE PRODUTO_ID = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$quantidade, $produto_id]);
+    }
+
     public function excluirPorProduto($produto_id) {
         $stmt = $this->conn->prepare("DELETE FROM ESTOQUE WHERE PRODUTO_ID = ?");
         return $stmt->execute([$produto_id]);

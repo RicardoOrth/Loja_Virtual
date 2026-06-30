@@ -1195,6 +1195,8 @@ nav a:hover,
 .btn-entregue {
     background-color: #2e7d32 !important;
     color: #fff !important;
+    font-size: 13px !important;
+    padding: 7px 14px !important;
 }
 
 .btn-entregue:hover {
@@ -1202,12 +1204,15 @@ nav a:hover,
 }
 
 .btn-cancelar {
-    background-color: #c62828 !important;
-    color: #fff !important;
+    background-color: #fff !important;
+    color: #c62828 !important;
+    border: 1px solid #e0a3a3 !important;
+    font-size: 13px !important;
+    padding: 6px 13px !important;
 }
 
 .btn-cancelar:hover {
-    background-color: #8e0000 !important;
+    background-color: #ffebee !important;
 }
 
 .pedido-data-acao {
@@ -1345,17 +1350,29 @@ nav a:hover,
     display: block;
 }
 
-.kebab-menu a {
+.kebab-menu form {
+    margin: 0;
+}
+
+.kebab-menu a,
+.kebab-menu button {
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
     padding: 10px 14px;
     color: #333;
     text-decoration: none;
     font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
 }
 
-.kebab-menu a:hover {
+.kebab-menu a:hover,
+.kebab-menu button:hover {
     background: #f5f7fa;
 }
 

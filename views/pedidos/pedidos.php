@@ -9,6 +9,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $db = getDB();
 $pedidoDAO = new PedidoDAO($db);
+$estoqueDAO = new EstoqueDAO($db);
 $fornecedorDAO = new FornecedorDAO($db);
 $usuarioTipo = (int) ($_SESSION['usuario_tipo'] ?? 0);
 $usuarioClienteId = $usuarioTipo === 2 ? (int) $_SESSION['usuario_id'] : null;
@@ -40,9 +41,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'mudar_s
         $statusMsg = 'sem_permissao';
     } else {
         try {
-            $pedidoDAO->atualizarSituacao($idAlvo, $novoStatus);
+            if ($novoStatus === 'CANCELADO') {
+                // Cancelar: muda o status e devolve os itens ao estoque, numa
+                // única transação. Só repõe se o pedido ainda estava "NOVO"
+                // (evita repor estoque duas vezes em cancelamentos repetidos).
+                $db->beginTransaction();
+                if ($pedidoDAO->situacaoAtual($idAlvo) === 'NOVO') {
+                    foreach ($pedidoDAO->consultarItensPedido($idAlvo) as $item) {
+                        $estoqueDAO->reporEstoque($item['produto_id'], $item['quantidade']);
+                    }
+                }
+                $pedidoDAO->atualizarSituacao($idAlvo, $novoStatus);
+                $db->commit();
+            } else {
+                $pedidoDAO->atualizarSituacao($idAlvo, $novoStatus);
+            }
             $statusMsg = 'ok';
         } catch (Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             $statusMsg = 'erro';
         }
     }
@@ -55,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'mudar_s
 $statusBanner = "";
 $statusBannerClasse = "";
 switch ($_GET['status_msg'] ?? '') {
-    case 'ok':            $statusBanner = "Situação do pedido updated.";                              $statusBannerClasse = "pedido-msg-ok";   break;
+    case 'ok':            $statusBanner = "Situação do pedido atualizada.";                              $statusBannerClasse = "pedido-msg-ok";   break;
     case 'sem_permissao': $statusBanner = "Você não tem permissão para alterar o status.";       $statusBannerClasse = "pedido-msg-erro"; break;
     case 'invalido':      $statusBanner = "Ação inválida.";                                       $statusBannerClasse = "pedido-msg-erro"; break;
     case 'erro':          $statusBanner = "Não foi possível atualizar o status do pedido.";       $statusBannerClasse = "pedido-msg-erro"; break;
@@ -196,10 +214,31 @@ function linkPaginaPedidos(int $pagina, string $busca, ?int $pedidoId): string
                             </span>
                         </td>
                         <td>R$ <?= number_format((float) $item['valor_total'], 2, ',', '.') ?></td>
-                        <td style="white-space: nowrap;">
-                            <a href="<?= linkDetalhesPedido((int) $item['pedido_id'], $busca) ?>" class="btn-edit">
-                                Detalhes
-                            </a>
+                        <td style="text-align:center;">
+                            <div class="kebab-wrap">
+                                <button type="button" class="kebab-btn" onclick="alternarKebab(this)" aria-label="Ações" aria-haspopup="true">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <div class="kebab-menu">
+                                    <a href="<?= linkDetalhesPedido((int) $item['pedido_id'], $busca) ?>">
+                                        <i class="fa-solid fa-eye"></i> Detalhes
+                                    </a>
+                                    <?php if ($podeGerenciar && strtoupper($item['situacao']) === 'NOVO'): ?>
+                                        <form method="POST" onsubmit="return confirm('Marcar este pedido como ENTREGUE?');">
+                                            <input type="hidden" name="acao" value="mudar_status">
+                                            <input type="hidden" name="pedido_id" value="<?= (int) $item['pedido_id'] ?>">
+                                            <input type="hidden" name="situacao" value="ENTREGUE">
+                                            <button type="submit"><i class="fa-solid fa-check"></i> Pedido Entregue</button>
+                                        </form>
+                                        <form method="POST" onsubmit="return confirm('Cancelar este pedido?');">
+                                            <input type="hidden" name="acao" value="mudar_status">
+                                            <input type="hidden" name="pedido_id" value="<?= (int) $item['pedido_id'] ?>">
+                                            <input type="hidden" name="situacao" value="CANCELADO">
+                                            <button type="submit" class="kebab-item-perigo"><i class="fa-solid fa-xmark"></i> Cancelar Pedido</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -278,21 +317,19 @@ function linkPaginaPedidos(int $pagina, string $busca, ?int $pedidoId): string
 
                 <?php if ($podeGerenciar && strtoupper($pedido['situacao']) === 'NOVO'): ?>
                     <div class="pedido-acoes">
-                        <form method="POST" style="display:inline">
+                        <form method="POST" style="display:inline" onsubmit="return confirm('Marcar este pedido como ENTREGUE?');">
                             <input type="hidden" name="acao" value="mudar_status">
                             <input type="hidden" name="pedido_id" value="<?= (int) $pedido['pedido_id'] ?>">
                             <input type="hidden" name="situacao" value="ENTREGUE">
                             <button type="submit" class="btn btn-entregue">
-                                <i class="fa-solid fa-check"></i> Marcar como ENTREGUE
+                                <i class="fa-solid fa-check"></i> Pedido Entregue
                             </button>
                         </form>
                         <form method="POST" style="display:inline" onsubmit="return confirm('Cancelar este pedido?');">
                             <input type="hidden" name="acao" value="mudar_status">
                             <input type="hidden" name="pedido_id" value="<?= (int) $pedido['pedido_id'] ?>">
                             <input type="hidden" name="situacao" value="CANCELADO">
-                            <button type="submit" class="btn btn-cancelar">
-                                <i class="fa-solid fa-xmark"></i> Cancelar pedido
-                            </button>
+                            <button type="submit" class="btn btn-cancelar"><i class="fa-solid fa-xmark"></i> Cancelar Pedido</button>
                         </form>
                     </div>
                 <?php endif; ?>
@@ -328,6 +365,27 @@ function linkPaginaPedidos(int $pagina, string $busca, ?int $pedidoId): string
             <?php endif; ?>
         </section>
     </div>
+
+    <script>
+        // Menu de ações (três pontinhos) das linhas da tabela de pedidos
+        function alternarKebab(btn) {
+            const menu = btn.nextElementSibling;
+            const estavaAberto = menu.classList.contains("aberto");
+            fecharTodosKebabs();
+            if (!estavaAberto) menu.classList.add("aberto");
+        }
+        function fecharTodosKebabs() {
+            document.querySelectorAll(".kebab-menu.aberto").forEach(function (m) {
+                m.classList.remove("aberto");
+            });
+        }
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest(".kebab-wrap")) fecharTodosKebabs();
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") fecharTodosKebabs();
+        });
+    </script>
 
     <?php if ($pedido): ?>
         <script>
